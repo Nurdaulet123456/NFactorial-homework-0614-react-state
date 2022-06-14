@@ -20,21 +20,32 @@ const buttons = [
 ];
 
 
+// const getLocalItems = () => {
+//   let item = localStorage.getItem('items')
+//   console.log(item);
+
+//   if (item) {
+//     return JSON.parse(localStorage.getItem('items') || [])
+//   } else {
+//     return []
+//   }
+// }
+
+const getItems = () => {
+  let item = localStorage.getItem('items')
+
+  if (item) {
+    return JSON.parse(localStorage.getItem('items'))
+  } else {
+    return []
+  }
+}
+
 function App() {
 
-  const getLocalItems = () => {
-    let item = localStorage.getItem('items')
-    console.log(item);
-  
-    if (item) {
-      return JSON.parse(localStorage.getItem('items'))
-    } else {
-      return []
-    }
-  }
-
   const [itemToDo, setItemToDo] = useState("");
-  const [items, setItems] = useState(getLocalItems);
+  const [items, setItems] = useState(getItems());
+  const [search, setSearch] = useState('');
 
   // useEffect(() => {
   //   let data = localStorage.setItem('items', JSON.stringify(items))
@@ -78,9 +89,6 @@ function App() {
     );
   };
 
-  const handleFilterChange = ({ type }) => {
-    setFilterType(type);
-  };
 
 
   const hangleDeleteFunction = ({key}) => {
@@ -93,6 +101,16 @@ function App() {
       else return item
     }))
   }
+
+  const handleFilterChange = ({ type }) => {
+    if (filterType === "all") {
+        return items
+    } 
+
+    else if (filterType === "done") {
+      return items.filter((item) => item.done)
+    }
+  };
 
   const moreToDo = items.filter((item) => !item.done).length;
 
@@ -121,6 +139,7 @@ function App() {
           type="text"
           className="form-control search-input"
           placeholder="type to search"
+          onChange={e => setSearch(e.target.value)}
         />
         {/* Item-status-filter */}
         <div className="btn-group">
@@ -141,8 +160,8 @@ function App() {
 
       {/* List-group */}
       <ul className="list-group todo-list">
-        {filteredArray.length > 0 && window.localStorage.getItem('items') &&
-          filteredArray.map((item) => (
+        {filteredArray.length > 0 &&
+          items.filter((i) => i.label.toLowerCase().includes(search.toLowerCase())).map((item) => (
             <li key={item.key} className="list-group-item">
               <span className={`todo-list-item ${item.done ? "done" : ""}`}>
                 <span
